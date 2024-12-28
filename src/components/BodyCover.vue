@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 defineProps({
   tracksList: Object,
@@ -9,6 +9,37 @@ const isBurgerMenuOpen = ref(false); // State for burger menu visibility
 function toggleBurgerMenu() {
   isBurgerMenuOpen.value = !isBurgerMenuOpen.value;
 }
+
+const tracks = ref([]);
+
+const accessToken = new URL(window.location.href).hash
+  .substring(1)
+  .split("&")
+  .find((item) => item.startsWith("access_token"))
+  ?.split("=")[1];
+
+if (accessToken) localStorage.setItem("spotifyAccessToken", accessToken);
+const token = localStorage.getItem("spotifyAccessToken");
+
+async function fetchAlbum(albumId: string) {
+  if (!token) return console.error("No access token available");
+
+  const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) return console.error("Failed to fetch album", response.status);
+
+  return response.json();
+}
+
+async function loadAlbum(albumId: string) {
+  const album = await fetchAlbum(albumId);
+  console.log(album);
+  if (album) tracks.value = album.tracks.items;
+}
+
+loadAlbum("4jn3qmJgUFSWyXzJM8bgF9");
 
 // console.log(tracks);
 </script>
@@ -32,7 +63,7 @@ function toggleBurgerMenu() {
   <div v-show="isBurgerMenuOpen" class="album">
     <div class="burger-menu" :class="{ 'burger-menu--open': isBurgerMenuOpen }">
       <ul>
-        <li v-for="track in tracks" :key="track.id">
+        <li v-for="track in tracks" :key="track.id" class="track">
           {{ track.track_number }}. {{ track.name }} -
           {{ track.artists[0]?.name || "Unknown Artist" }}
         </li>
@@ -53,6 +84,11 @@ function toggleBurgerMenu() {
 
 $radius: remy(4px);
 $color-red: #d30320;
+
+.track {
+  color: black;
+  font-size: 0.9rem;
+}
 
 .body__cover {
   position: relative;

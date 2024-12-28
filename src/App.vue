@@ -6,44 +6,7 @@ import SongInfo from "./components/SongInfo.vue";
 import BodyCover from "./components/BodyCover.vue";
 import LoginButton from "./components/LoginButton.vue";
 
-const tracks = ref([]);
 
-const clientId = "3a125a5c879d4e6f9eb662422e6548e8";
-const redirectUri = "http://localhost:5173/callback";
-const scopes = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
-
-const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(
-  redirectUri
-)}&scope=${encodeURIComponent(scopes)}`;
-
-const accessToken = new URL(window.location.href).hash
-  .substring(1)
-  .split("&")
-  .find((item) => item.startsWith("access_token"))
-  ?.split("=")[1];
-
-if (accessToken) localStorage.setItem("spotifyAccessToken", accessToken);
-const token = localStorage.getItem("spotifyAccessToken");
-
-async function fetchAlbum(albumId: string) {
-  if (!token) return console.error("No access token available");
-
-  const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!response.ok) return console.error("Failed to fetch album", response.status);
-
-  return response.json();
-}
-
-async function loadAlbum(albumId: string) {
-  const album = await fetchAlbum(albumId);
-  console.log(album);
-  if (album) tracks.value = album.tracks.items;
-}
-
-loadAlbum("4jn3qmJgUFSWyXzJM8bgF9");
 </script>
 <template>
   <div class="wrapper">
@@ -123,5 +86,4 @@ a {
   border-radius: $radius;
   box-shadow: $boxshadow-2;
 }
-
 </style>

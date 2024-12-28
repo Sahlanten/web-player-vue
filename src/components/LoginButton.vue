@@ -1,4 +1,12 @@
-<script setup></script>
+<script setup>
+const clientId = "3a125a5c879d4e6f9eb662422e6548e8";
+const redirectUri = "http://localhost:5173/callback";
+const scopes = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
+
+const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(
+  redirectUri
+)}&scope=${encodeURIComponent(scopes)}`;
+</script>
 
 <template>
   <a :href="authUrl" class="spotify-login-button">Login with Spotify</a>
